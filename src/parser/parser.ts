@@ -1,5 +1,5 @@
-import {COMPONENTS} from "$parser/constants";
-import {UnknownComponentError} from "$parser/errors";
+import {COMPONENTS} from "../constants";
+import {UnknownComponentError} from "../errors";
 
 export function parse(input: string): SlimNode[] {
     const lines = input.split('\n').filter(Boolean);

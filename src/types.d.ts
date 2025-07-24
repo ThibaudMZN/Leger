@@ -1,5 +1,5 @@
 type SlimNode = {
-    type: string;
+    type: ComponentType;
     props: Record<string, string>;
     children: SlimNode[];
     content?: string;

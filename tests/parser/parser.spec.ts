@@ -1,7 +1,7 @@
 import {describe, it} from "node:test";
 import assert from "node:assert";
 import {parse} from "$parser/parser"
-import {UnknownComponentError} from "$parser/errors";
+import {UnknownComponentError} from "../../src/errors";
 
 describe("Slim parser", () => {
     it("can detect component keywords", () => {

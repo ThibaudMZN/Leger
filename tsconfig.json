@@ -8,7 +8,8 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "paths": {
-      "$parser/*": ["./src/parser/*"]
+      "$parser/*": ["./src/parser/*"],
+      "$renderer/*": ["./src/renderer/*"]
     }
   }
 }
