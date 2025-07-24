@@ -1,0 +1,30 @@
+{
+  "name": "slim",
+  "version": "0.0.1",
+  "description": "Lightweight Static Site Generator (SSG) built with Svelte & Vite",
+  "scripts": {
+    "test": "node --import tsx --test './tests/**/*.spec.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThibaudMZN/Slim.git"
+  },
+  "keywords": [
+    "ssg",
+    "svelte",
+    "vite",
+    "static",
+    "slim"
+  ],
+  "author": "ThibaudMZN",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ThibaudMZN/Slim/issues"
+  },
+  "homepage": "https://github.com/ThibaudMZN/Slim#readme",
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
