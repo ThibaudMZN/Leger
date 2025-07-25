@@ -9,7 +9,8 @@
     "outDir": "dist",
     "paths": {
       "$parser/*": ["./src/parser/*"],
-      "$renderer/*": ["./src/renderer/*"]
+      "$renderer/*": ["./src/renderer/*"],
+      "$cli/*": ["./src/cli/*"]
     }
   }
 }
