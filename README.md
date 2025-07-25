@@ -4,6 +4,22 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ![Tests](https://img.shields.io/github/actions/workflow/status/ThibaudMZN/Slim/test.yml?label=Tests&logo=github)
 
+## Todo
+
+- [ ] `dev` mode
+- [ ] extract component list from actual components
+  - [ ] check properties and throw warning if unknown
+- [ ] more components
+- [ ] add proper scss
+- [ ] add global stylesheet
+- [ ] front-matter support
+- [ ] markdown support
+- [ ] custom svelte support
+- [ ] mixin support
+- [ ] better parsing
+  - [ ] components don't need ()
+  - [ ] allow nested trailing text
+
 ## Example `.slim` file
 
 ```jade
