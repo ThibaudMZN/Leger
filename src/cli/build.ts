@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { parse } from '$parser/parser';
-import { render } from '$renderer/renderer';
+import { parse } from '../parser/parser';
+import { render } from '../renderer/renderer';
 
 export type BuildOptions = {
     paths: {
@@ -10,6 +10,10 @@ export type BuildOptions = {
     }
 };
 
+export type BuildResult = {
+    filesCount: number;
+}
+
 const defaultOptions: BuildOptions = {
     paths: {
         input: 'pages',
@@ -17,7 +21,7 @@ const defaultOptions: BuildOptions = {
     }
 }
 
-export async function build(options: BuildOptions = defaultOptions): Promise<void> {
+export async function build(options: BuildOptions = defaultOptions): Promise<BuildResult> {
     const inDir = path.resolve(options.paths.input);
     const outDir = path.resolve(options.paths.output);
     await fs.mkdir(outDir, { recursive: true });
@@ -34,4 +38,6 @@ export async function build(options: BuildOptions = defaultOptions): Promise<voi
         const outPath = path.join(outDir, `${name}.svelte`);
         await fs.writeFile(outPath, svelteCode, 'utf-8');
     }
+
+    return {filesCount: files.length};
 }

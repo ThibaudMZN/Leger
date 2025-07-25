@@ -7,10 +7,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "paths": {
-      "$parser/*": ["./src/parser/*"],
-      "$renderer/*": ["./src/renderer/*"],
-      "$cli/*": ["./src/cli/*"]
-    }
-  }
+    "noEmit": true
+  },
 }

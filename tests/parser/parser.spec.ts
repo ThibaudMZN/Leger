@@ -1,6 +1,6 @@
 import {describe, it} from "node:test";
 import assert from "node:assert";
-import {parse} from "$parser/parser"
+import {parse} from "../../src/parser/parser"
 import {UnknownComponentError} from "../../src/errors";
 
 describe("Slim parser", () => {
@@ -40,11 +40,11 @@ describe("Slim parser", () => {
     });
 
     it("throws an error if it's not a know component", () => {
-        const input = "not-a-component(a=b)";
+        const input = "notAComponent(a=b)";
 
         assert.throws(() => parse(input), (e) => {
             assert(e instanceof UnknownComponentError);
-            assert(/Unknown component: not-a-component/.test(e.toString()));
+            assert.match(e.toString(), /Unknown component: notAComponent/);
             return true;
         });
     })

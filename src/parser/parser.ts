@@ -17,7 +17,7 @@ export function parse(input: string): SlimNode[] {
         const trailingText = match[4]?.trim();
 
         if(!(type in COMPONENTS))
-            throw new UnknownComponentError("Unknown component: not-a-component")
+            throw new UnknownComponentError(`Unknown component: ${type}`)
 
         const props: Record<string, string> = {};
         rawProps.split(',').forEach((pair) => {

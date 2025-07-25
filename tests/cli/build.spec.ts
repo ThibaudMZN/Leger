@@ -1,6 +1,6 @@
 import {describe, it, Mock, beforeEach, afterEach} from "node:test";
 import assert from "node:assert";
-import {build, BuildOptions} from "$cli/build";
+import {build, BuildOptions} from "../../src/cli/build";
 
 import path from "path";
 import fs from "fs/promises";
@@ -87,5 +87,12 @@ describe("Slim CLI build command", () => {
 
         await build(defaultTestOptions);
         assert.deepEqual(generatedFile, {});
+    });
+
+    it('should return number of compiled files', async () => {
+        mockFsReaddir.mock.mockImplementation(async () => ['a.slim', 'b.slim']);
+
+        const result = await build(defaultTestOptions);
+        assert.deepEqual(result.filesCount, 2);
     });
 });
