@@ -9,7 +9,7 @@ describe("Slim renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result, "<Text></Text>");
+    assert.equal(result.content, "<Text></Text>");
   });
 
   it("can add props", () => {
@@ -19,7 +19,7 @@ describe("Slim renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result, '<Text props1="a" props2="b"></Text>');
+    assert.equal(result.content, '<Text props1="a" props2="b"></Text>');
   });
 
   it("can render content", () => {
@@ -29,7 +29,7 @@ describe("Slim renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result, "<Text>Some inner content</Text>");
+    assert.equal(result.content, "<Text>Some inner content</Text>");
   });
 
   it("can render nested components", () => {
@@ -41,10 +41,28 @@ describe("Slim renderer", () => {
         .build(),
     ];
 
-    const results = render(nodes).split("\n");
+    const results = render(nodes).content.split("\n");
 
     assert.equal(results[0], "<Text>");
     assert.equal(results[1], "  <Text>Some content inside</Text>");
     assert.equal(results[2], "</Text>");
+  });
+
+  it("can return a list of used components", () => {
+    const nodes: SlimNode[] = [
+      new SlimNodeBuilder()
+        .withType("section")
+        .withChild(
+          new SlimNodeBuilder()
+            .withType("text")
+            .withContent("Some content inside")
+            .build(),
+        )
+        .build(),
+    ];
+
+    const { usedComponents } = render(nodes);
+
+    assert.deepEqual(Array.from(usedComponents), ["section", "text"]);
   });
 });
