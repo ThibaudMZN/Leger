@@ -1,0 +1,16 @@
+{
+  "name": "slim-static-site",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/kit": "^2.26.1",
+    "svelte": "^5.36.16",
+    "vite": "^6.3.5"
+  },
+  "type": "module"
+}
