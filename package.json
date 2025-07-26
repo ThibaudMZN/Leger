@@ -29,12 +29,13 @@
   },
   "homepage": "https://github.com/ThibaudMZN/Slim#readme",
   "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/kit": "^2.26.1",
     "@types/node": "^24.1.0",
+    "chokidar": "^4.0.3",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
-    "@sveltejs/adapter-static": "^3.0.8",
-    "@sveltejs/kit": "^2.26.1"
+    "vite": "^6.3.5"
   }
 }
