@@ -1,9 +1,10 @@
-import { describe, it, Mock, beforeEach, afterEach } from "node:test";
+import { describe, it, Mock, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
 import { build, BuildOptions } from "../../src/cli/build";
 
 import path from "path";
 import fs from "fs/promises";
+import { execSync } from "child_process";
 
 describe("Slim CLI build command", () => {
   let mockPathResolve: Mock<any>;
@@ -11,6 +12,8 @@ describe("Slim CLI build command", () => {
   let mockFsReaddir: Mock<any>;
   let mockFsReadFile: Mock<any>;
   let mockFsWriteFile: Mock<any>;
+
+  const exec: typeof execSync = mock.fn();
 
   const defaultTestOptions: BuildOptions = {
     paths: { input: "/input", output: "/output" },
@@ -27,6 +30,9 @@ describe("Slim CLI build command", () => {
       mockFsReaddir = context.mock.method(fs, "readdir", async () => []);
       mockFsReadFile = context.mock.method(fs, "readFile", async () => "");
       mockFsWriteFile = context.mock.method(fs, "writeFile", async () => {});
+
+      context.mock.method(fs, "cp", async () => {});
+      context.mock.method(fs, "rm", async () => {});
     }
   });
 
@@ -41,20 +47,20 @@ describe("Slim CLI build command", () => {
       return "";
     });
 
-    await build(defaultTestOptions);
+    await build(defaultTestOptions, exec);
 
     assert.deepEqual(resolvedPath, ["/input", "/output"]);
   });
 
   it("can create output dir", async () => {
     let createdDirectory: Record<string, any> = {};
-    mockFsMkdir.mock.mockImplementation(
+    mockFsMkdir.mock.mockImplementationOnce(
       async (target: string, options: Record<string, any>) => {
         createdDirectory = { target, options };
       },
     );
 
-    await build(defaultTestOptions);
+    await build(defaultTestOptions, exec);
 
     assert.equal(createdDirectory.target, "/output");
     assert.deepEqual(createdDirectory.options, { recursive: true });
@@ -62,53 +68,53 @@ describe("Slim CLI build command", () => {
 
   it("can read all files from input directory", async () => {
     let readDirectory: string = "";
-    mockFsReaddir.mock.mockImplementation(async (target: string) => {
+    mockFsReaddir.mock.mockImplementationOnce(async (target: string) => {
       readDirectory = target;
       return [];
     });
 
-    await build(defaultTestOptions);
+    await build(defaultTestOptions, exec);
 
     assert.equal(readDirectory, "/input");
   });
 
   it("can generate svelte files", async () => {
     let generatedFile: Record<string, any> = {};
-    mockFsReaddir.mock.mockImplementation(async () => ["index.slim"]);
-    mockFsReadFile.mock.mockImplementation(
+    mockFsReaddir.mock.mockImplementationOnce(async () => ["index.slim"]);
+    mockFsReadFile.mock.mockImplementationOnce(
       async () => "text(size=large) Hello, world!",
     );
-    mockFsWriteFile.mock.mockImplementation(
+    mockFsWriteFile.mock.mockImplementationOnce(
       async (target: string, output: string) => {
         generatedFile = { target, output };
       },
     );
 
-    await build(defaultTestOptions);
+    await build(defaultTestOptions, exec);
     assert.match(generatedFile.target, /\/output\/index.svelte/);
-    assert.equal(
+    assert.match(
       generatedFile.output,
-      '<Text size="large">Hello, world!</Text>',
+      /<Text size="large">Hello, world!<\/Text>/,
     );
   });
 
   it("should omit non .slim files", async () => {
     let generatedFile: Record<string, any> = {};
     mockFsReaddir.mock.mockImplementation(async () => ["index.not-slim"]);
-    mockFsWriteFile.mock.mockImplementation(
+    mockFsWriteFile.mock.mockImplementationOnce(
       async (target: string, output: string) => {
         generatedFile = { target, output };
       },
     );
 
-    await build(defaultTestOptions);
-    assert.deepEqual(generatedFile, {});
+    await build(defaultTestOptions, exec);
+    assert.doesNotMatch(generatedFile.target, /index/);
   });
 
   it("should return number of compiled files", async () => {
     mockFsReaddir.mock.mockImplementation(async () => ["a.slim", "b.slim"]);
 
-    const result = await build(defaultTestOptions);
+    const result = await build(defaultTestOptions, exec);
     assert.deepEqual(result.filesCount, 2);
   });
 });

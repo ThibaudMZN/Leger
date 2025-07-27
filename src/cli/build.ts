@@ -26,6 +26,7 @@ const defaultOptions: BuildOptions = {
 
 export async function build(
   options: BuildOptions = defaultOptions,
+  exec: typeof execSync = execSync,
 ): Promise<BuildResult> {
   const inDir = path.resolve(options.paths.input);
   const outDir = path.resolve(options.paths.output);
@@ -38,7 +39,7 @@ export async function build(
   await setupTempSvelteKit(svelteKitDir);
   await generateSvelteKitRoutes(outDir, svelteKitDir);
 
-  execSync("npm run build", { cwd: svelteKitDir, stdio: "inherit" });
+  exec("npm run build", { cwd: svelteKitDir, stdio: "inherit" });
 
   await fs.cp(path.join(svelteKitDir, "build"), ".slim", { recursive: true });
   await fs.rm(outDir, { recursive: true });
