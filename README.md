@@ -6,9 +6,8 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ## Todo
 
-- [x] `dev` mode
-- [ ] replace `chokidar` with built-in `fs.watch()`
 - [ ] Test `build` and `dev` a bit more
+  - [ ] Write tmp `dev` file inside `.leg` directory
 - [ ] extract component list from actual components
   - [ ] check properties and throw warning if unknown
 - [ ] more components

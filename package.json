@@ -1,10 +1,12 @@
 {
   "name": "leger",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Lightweight Static Site Generator (SSG) built with Svelte & Vite",
   "type": "module",
   "main": "dist/cli/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "bin": {
     "leger": "dist/cli/index.js"
   },
@@ -31,13 +33,16 @@
   },
   "homepage": "https://github.com/ThibaudMZN/Leger#readme",
   "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.8",
-    "@sveltejs/kit": "^2.26.1",
     "@types/node": "^24.1.0",
-    "chokidar": "^4.0.3",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite-plugin-static-copy": "^3.1.1"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "vite": "^6.3.5",
+    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/kit": "^2.26.1"
   }
 }

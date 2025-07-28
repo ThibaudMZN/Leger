@@ -5,6 +5,7 @@ import { parse } from "../parser/parser";
 import { render } from "../renderer/renderer";
 import { COMPONENTS } from "../constants";
 import { watch } from "chokidar";
+import { fileURLToPath } from "node:url";
 
 export type BuildOptions = {
   paths: {
@@ -118,7 +119,10 @@ export async function dev(
 async function setupTempSvelteKit(dir: string) {
   await fs.mkdir(dir, { recursive: true });
 
-  const configDir = "sveltekit-config";
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const configDir = path.join(__dirname, "../sveltekit-config");
 
   const cpToTarget = async (file: string) =>
     fs.cp(path.join(configDir, file), path.join(dir, file));
@@ -133,7 +137,8 @@ async function setupTempSvelteKit(dir: string) {
   await cpToTarget("svelte.config.js");
   await cpToTarget("vite.config.js");
 
-  await fs.cp("./src/components", path.join(dir, "src/lib/components"), {
+  const componentsDir = path.join(__dirname, "../components");
+  await fs.cp(componentsDir, path.join(dir, "src/lib/components"), {
     recursive: true,
   });
 

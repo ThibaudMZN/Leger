@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
   build: {
@@ -15,9 +16,24 @@ export default defineConfig({
         "node:path",
         "node:fs/promises",
         "node:child_process",
+        "node:url",
         "chokidar",
       ],
     },
     emptyOutDir: true,
   },
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: "sveltekit-config",
+          dest: ".",
+        },
+        {
+          src: "src/components/**/*",
+          dest: "./components",
+        },
+      ],
+    }),
+  ],
 });
