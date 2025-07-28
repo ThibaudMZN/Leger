@@ -1,7 +1,7 @@
 import { ComponentType } from "../../src/constants";
 
-export class SlimNodeBuilder {
-  private data: SlimNode = {
+export class LegerNodeBuilder {
+  private data: LegerNode = {
     type: "text",
     props: {},
     children: [],
@@ -17,7 +17,7 @@ export class SlimNodeBuilder {
     return this;
   }
 
-  withChild(node: SlimNode) {
+  withChild(node: LegerNode) {
     this.data.children.push(node);
     return this;
   }
@@ -27,7 +27,7 @@ export class SlimNodeBuilder {
     return this;
   }
 
-  build(): SlimNode {
+  build(): LegerNode {
     return this.data;
   }
 }

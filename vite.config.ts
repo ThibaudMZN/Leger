@@ -11,7 +11,12 @@ export default defineConfig({
       fileName: () => "cli/index.js",
     },
     rollupOptions: {
-      external: ["path", "fs/promises"],
+      external: [
+        "node:path",
+        "node:fs/promises",
+        "node:child_process",
+        "chokidar",
+      ],
     },
     emptyOutDir: true,
   },

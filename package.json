@@ -1,33 +1,35 @@
 {
-  "name": "slim",
+  "name": "leger",
   "version": "0.0.1",
   "description": "Lightweight Static Site Generator (SSG) built with Svelte & Vite",
   "type": "module",
+  "main": "dist/cli/index.js",
+  "files": ["dist"],
   "bin": {
-    "slim": "dist/cli/index.js"
+    "leger": "dist/cli/index.js"
   },
   "scripts": {
     "build": "vite build",
     "test": "node --import tsx --test './tests/**/*.spec.ts'",
-    "slim:build": "slim build"
+    "leger:build": "leger build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ThibaudMZN/Slim.git"
+    "url": "git+https://github.com/ThibaudMZN/Leger.git"
   },
   "keywords": [
     "ssg",
     "svelte",
     "vite",
     "static",
-    "slim"
+    "leger"
   ],
   "author": "ThibaudMZN",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ThibaudMZN/Slim/issues"
+    "url": "https://github.com/ThibaudMZN/Leger/issues"
   },
-  "homepage": "https://github.com/ThibaudMZN/Slim#readme",
+  "homepage": "https://github.com/ThibaudMZN/Leger#readme",
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.26.1",

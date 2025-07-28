@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { render } from "../../src/renderer/renderer";
-import { SlimNodeBuilder } from "../builders/slimNode.builder";
+import { LegerNodeBuilder } from "../builders/legerNodeBuilder";
 
-describe("Slim renderer", () => {
+describe("Leger renderer", () => {
   it("can render a component", () => {
-    const nodes: SlimNode[] = [new SlimNodeBuilder().build()];
+    const nodes: LegerNode[] = [new LegerNodeBuilder().build()];
 
     const result = render(nodes);
 
@@ -13,8 +13,8 @@ describe("Slim renderer", () => {
   });
 
   it("can add props", () => {
-    const nodes: SlimNode[] = [
-      new SlimNodeBuilder().withProps({ props1: "a", props2: "b" }).build(),
+    const nodes: LegerNode[] = [
+      new LegerNodeBuilder().withProps({ props1: "a", props2: "b" }).build(),
     ];
 
     const result = render(nodes);
@@ -23,8 +23,8 @@ describe("Slim renderer", () => {
   });
 
   it("can render content", () => {
-    const nodes: SlimNode[] = [
-      new SlimNodeBuilder().withContent("Some inner content").build(),
+    const nodes: LegerNode[] = [
+      new LegerNodeBuilder().withContent("Some inner content").build(),
     ];
 
     const result = render(nodes);
@@ -33,10 +33,10 @@ describe("Slim renderer", () => {
   });
 
   it("can render nested components", () => {
-    const nodes: SlimNode[] = [
-      new SlimNodeBuilder()
+    const nodes: LegerNode[] = [
+      new LegerNodeBuilder()
         .withChild(
-          new SlimNodeBuilder().withContent("Some content inside").build(),
+          new LegerNodeBuilder().withContent("Some content inside").build(),
         )
         .build(),
     ];
@@ -49,11 +49,11 @@ describe("Slim renderer", () => {
   });
 
   it("can return a list of used components", () => {
-    const nodes: SlimNode[] = [
-      new SlimNodeBuilder()
+    const nodes: LegerNode[] = [
+      new LegerNodeBuilder()
         .withType("section")
         .withChild(
-          new SlimNodeBuilder()
+          new LegerNodeBuilder()
             .withType("text")
             .withContent("Some content inside")
             .build(),

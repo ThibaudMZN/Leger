@@ -1,11 +1,11 @@
 import { COMPONENTS } from "../constants";
 import { UnknownComponentError } from "../errors";
 
-export function parse(input: string): SlimNode[] {
+export function parse(input: string): LegerNode[] {
   const lines = input.split("\n").filter(Boolean);
 
-  const root: SlimNode[] = [];
-  const stack: { indent: number; node: SlimNode }[] = [];
+  const root: LegerNode[] = [];
+  const stack: { indent: number; node: LegerNode }[] = [];
 
   for (const line of lines) {
     const match = line.match(/^(\s*)([a-zA-Z0-9_+]+)(?:\(([^)]*)\))?\s*(.*)?$/);
@@ -25,7 +25,7 @@ export function parse(input: string): SlimNode[] {
       if (k && v) props[k] = v.replace(/^['"]|['"]$/g, "");
     });
 
-    const node: SlimNode = {
+    const node: LegerNode = {
       type,
       props,
       children: [],

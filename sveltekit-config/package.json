@@ -1,5 +1,5 @@
 {
-  "name": "slim-static-site",
+  "name": "leger-static-site",
   "version": "0.0.1",
   "scripts": {
     "dev": "vite dev",

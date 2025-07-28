@@ -1,6 +1,6 @@
-type SlimNode = {
+type LegerNode = {
   type: ComponentType;
   props: Record<string, string>;
-  children: SlimNode[];
+  children: LegerNode[];
   content?: string;
 };

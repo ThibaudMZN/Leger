@@ -1,12 +1,13 @@
-# Slim
+# Léger
 
 Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
-![Tests](https://img.shields.io/github/actions/workflow/status/ThibaudMZN/Slim/test.yml?label=Tests&logo=github)
+![Tests](https://img.shields.io/github/actions/workflow/status/ThibaudMZN/Leger/test.yml?label=Tests&logo=github)
 
 ## Todo
 
 - [x] `dev` mode
+- [ ] replace `chokidar` with built-in `fs.watch()`
 - [ ] Test `build` and `dev` a bit more
 - [ ] extract component list from actual components
   - [ ] check properties and throw warning if unknown
@@ -21,7 +22,7 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
   - [ ] components don't need ()
   - [ ] allow nested trailing text
 
-## Example `.slim` file
+## Example `.leg` file
 
 ```jade
 section(columns="2")

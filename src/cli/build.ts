@@ -20,7 +20,7 @@ export type BuildResult = {
 const defaultOptions: BuildOptions = {
   paths: {
     input: "pages",
-    output: ".slim/generated",
+    output: ".leg/generated",
   },
 };
 
@@ -33,7 +33,7 @@ export async function build(
   await fs.mkdir(outDir, { recursive: true });
   const files = await fs.readdir(inDir);
 
-  await compileSlimeToSvelte(files, inDir, outDir);
+  await compileLegerToSvelte(files, inDir, outDir);
 
   const svelteKitDir = path.join(outDir, ".sveltekit");
   await setupTempSvelteKit(svelteKitDir);
@@ -41,7 +41,7 @@ export async function build(
 
   exec("npm run build", { cwd: svelteKitDir, stdio: "inherit" });
 
-  await fs.cp(path.join(svelteKitDir, "build"), ".slim", { recursive: true });
+  await fs.cp(path.join(svelteKitDir, "build"), ".leg", { recursive: true });
   await fs.rm(outDir, { recursive: true });
 
   return { filesCount: files.length };
@@ -51,11 +51,11 @@ export async function dev(
   options: BuildOptions = defaultOptions,
 ): Promise<void> {
   const inDir = path.resolve(options.paths.input);
-  const outDir = path.resolve(`.slim-dev-${new Date().getTime()}`);
+  const outDir = path.resolve(`.leg-dev-${new Date().getTime()}`);
   await fs.mkdir(outDir, { recursive: true });
   const files = await fs.readdir(inDir);
 
-  await compileSlimeToSvelte(files, inDir, outDir);
+  await compileLegerToSvelte(files, inDir, outDir);
 
   const svelteKitDir = path.join(outDir, ".sveltekit");
   await setupTempSvelteKit(svelteKitDir);
@@ -71,28 +71,28 @@ export async function dev(
     ignoreInitial: true,
   });
 
-  watcher.on("change", async (slimPath) => {
-    console.log(`📝 Changed: ${slimPath}`);
-    await compileSlimeToSvelte(files, inDir, outDir);
+  watcher.on("change", async (legerPath) => {
+    console.log(`📝 Changed: ${legerPath}`);
+    await compileLegerToSvelte(files, inDir, outDir);
     await generateSvelteKitRoutes(outDir, svelteKitDir);
   });
 
-  watcher.on("add", async (slimPath) => {
-    console.log(`➕ Added: ${slimPath}`);
-    await compileSlimeToSvelte(files, inDir, outDir);
+  watcher.on("add", async (legerPath) => {
+    console.log(`➕ Added: ${legerPath}`);
+    await compileLegerToSvelte(files, inDir, outDir);
     await generateSvelteKitRoutes(outDir, svelteKitDir);
   });
 
-  watcher.on("unlink", async (slimPath) => {
-    console.log(`🗑️  Deleted: ${slimPath}`);
-    const name = path.basename(slimPath, ".slim");
+  watcher.on("unlink", async (legerPath) => {
+    console.log(`🗑️  Deleted: ${legerPath}`);
+    const name = path.basename(legerPath, ".leg");
     const routeDir = name === "index" ? "src/routes" : `src/routes/${name}`;
     const sveltePath = path.join(routeDir, "+page.svelte");
 
     try {
       await fs.unlink(sveltePath);
       console.log(`🗑️  Cleaned up: ${sveltePath}`);
-      await compileSlimeToSvelte(files, inDir, outDir);
+      await compileLegerToSvelte(files, inDir, outDir);
       await generateSvelteKitRoutes(outDir, svelteKitDir);
     } catch (error) {
       // File might not exist, ignore
@@ -146,15 +146,15 @@ async function setupTempSvelteKit(dir: string) {
   );
 }
 
-async function compileSlimeToSvelte(
+async function compileLegerToSvelte(
   files: string[],
   inDir: string,
   outDir: string,
 ) {
   for (const file of files) {
-    if (!file.endsWith(".slim")) continue;
+    if (!file.endsWith(".leg")) continue;
 
-    const name = file.replace(".slim", "");
+    const name = file.replace(".leg", "");
     const raw = await fs.readFile(path.join(inDir, file), "utf-8");
     const ast = parse(raw);
     const svelteRender = render(ast);

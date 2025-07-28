@@ -6,7 +6,7 @@ import path from "path";
 import fs from "fs/promises";
 import { execSync } from "child_process";
 
-describe("Slim CLI build command", () => {
+describe("Leger CLI build command", () => {
   let mockPathResolve: Mock<any>;
   let mockFsMkdir: Mock<any>;
   let mockFsReaddir: Mock<any>;
@@ -80,7 +80,7 @@ describe("Slim CLI build command", () => {
 
   it("can generate svelte files", async () => {
     let generatedFile: Record<string, any> = {};
-    mockFsReaddir.mock.mockImplementationOnce(async () => ["index.slim"]);
+    mockFsReaddir.mock.mockImplementationOnce(async () => ["index.leg"]);
     mockFsReadFile.mock.mockImplementationOnce(
       async () => "text(size=large) Hello, world!",
     );
@@ -98,9 +98,9 @@ describe("Slim CLI build command", () => {
     );
   });
 
-  it("should omit non .slim files", async () => {
+  it("should omit non .leg files", async () => {
     let generatedFile: Record<string, any> = {};
-    mockFsReaddir.mock.mockImplementation(async () => ["index.not-slim"]);
+    mockFsReaddir.mock.mockImplementation(async () => ["index.not-leg"]);
     mockFsWriteFile.mock.mockImplementationOnce(
       async (target: string, output: string) => {
         generatedFile = { target, output };
@@ -112,7 +112,7 @@ describe("Slim CLI build command", () => {
   });
 
   it("should return number of compiled files", async () => {
-    mockFsReaddir.mock.mockImplementation(async () => ["a.slim", "b.slim"]);
+    mockFsReaddir.mock.mockImplementation(async () => ["a.leg", "b.leg"]);
 
     const result = await build(defaultTestOptions, exec);
     assert.deepEqual(result.filesCount, 2);

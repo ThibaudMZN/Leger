@@ -3,7 +3,7 @@ import assert from "node:assert";
 import { parse } from "../../src/parser/parser";
 import { UnknownComponentError } from "../../src/errors";
 
-describe("Slim parser", () => {
+describe("Leger parser", () => {
   it("can detect component keywords", () => {
     const input = "text()";
 

@@ -6,7 +6,7 @@ type RenderResult = {
 };
 
 export function render(
-  nodes: SlimNode[],
+  nodes: LegerNode[],
   level = 0,
   usedComponents: Set<ComponentType> = new Set<ComponentType>(),
 ): RenderResult {

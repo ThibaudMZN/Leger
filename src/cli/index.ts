@@ -7,7 +7,7 @@ const command = process.argv[2];
 if (command === "build") {
   build().then((result) =>
     console.log(
-      `\x1b[32m ✅ ${result.filesCount} '.slim' files compiled \x1b[0m`,
+      `\x1b[32m ✅ ${result.filesCount} '.leg' files compiled \x1b[0m`,
     ),
   );
 } else if (command === "dev") {
