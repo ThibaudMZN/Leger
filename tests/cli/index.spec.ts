@@ -1,22 +1,34 @@
-import { describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-
-const CLI_PATH = "src/cli/index.ts";
-const NODE_ARGS = ["--import", "tsx"];
-
-const execFileAsync = promisify(execFile);
+import { runCli } from "../../src/cli/index";
 
 describe("Leger's CLI", () => {
+  let originalConsoleError: (...data: string[]) => void;
+  let originalProcessExit: (code?: number | string | null | undefined) => never;
+  let errors: string[] = [];
+  let exitCode: number | string | null | undefined;
+
+  beforeEach(() => {
+    originalConsoleError = console.error;
+    console.error = (error: string) => {
+      errors.push(error);
+    };
+
+    originalProcessExit = process.exit;
+    // @ts-ignore
+    process.exit = (code?: number | string | null | undefined) => {
+      exitCode = code;
+    };
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
+    process.exit = originalProcessExit;
+  });
+
   it("returns an error on unknown command", async () => {
-    try {
-      await execFileAsync("node", [...NODE_ARGS, CLI_PATH, "not-a-command"]);
-      assert.fail("Should have thrown an error on unknown command");
-    } catch (e) {
-      if (e instanceof Error)
-        assert.match(e.toString(), /Unknown command: not-a-command/);
-      else assert.fail();
-    }
+    await runCli("not-a-command");
+    assert.match(errors[0], /Unknown command: not-a-command/);
+    assert.equal(exitCode, 1);
   });
 });
