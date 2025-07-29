@@ -16,7 +16,7 @@ export function render(
     .map((node) => {
       if (!usedComponents.has(node.type)) usedComponents.add(node.type);
 
-      const tagName = COMPONENTS[node.type];
+      const tagName = COMPONENTS[node.type].name;
 
       const props = Object.entries(node.props)
         .map(([k, v]) => `${k}="${v}"`)

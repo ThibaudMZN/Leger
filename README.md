@@ -6,9 +6,7 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ## Todo
 
-- [ ] Test `build` and `dev` a bit more
-  - [ ] Write tmp `dev` file inside `.leg` directory
-- [ ] extract component list from actual components
+- [x] extract component list from actual components
   - [ ] check properties and throw warning if unknown
 - [ ] more components
 - [ ] add proper scss
@@ -20,6 +18,8 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 - [ ] better parsing
   - [ ] components don't need ()
   - [ ] allow nested trailing text
+- [ ] Test `build` and `dev` a bit more
+  - [ ] It would be best to use vite.build and vite.createServer
 
 ## Example `.leg` file
 

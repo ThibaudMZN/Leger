@@ -166,7 +166,7 @@ async function compileLegerToSvelte(
 
     const imports = `<script>\n${Array.from(svelteRender.usedComponents)
       .map((type) => {
-        const componentName = COMPONENTS[type];
+        const componentName = COMPONENTS[type].name;
         return `    import ${componentName} from '$lib/components/${componentName}.svelte';`;
       })
       .join("\n")}\n</script>`;
