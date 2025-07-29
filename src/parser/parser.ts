@@ -1,5 +1,5 @@
 import { COMPONENTS } from "../constants";
-import { UnknownComponentError } from "../errors";
+import { UnknownComponentError, UnknownPropertyError } from "../errors";
 
 export function parse(input: string): LegerNode[] {
   const lines = input.split("\n").filter(Boolean);
@@ -19,10 +19,17 @@ export function parse(input: string): LegerNode[] {
     if (!(type in COMPONENTS))
       throw new UnknownComponentError(`Unknown component: ${type}`);
 
+    const allowedProps = COMPONENTS[type].props;
     const props: Record<string, string> = {};
     rawProps.split(",").forEach((pair) => {
       const [k, v] = pair.split("=").map((s) => s?.trim());
-      if (k && v) props[k] = v.replace(/^['"]|['"]$/g, "");
+      if (k && v) {
+        if (!allowedProps.includes(k))
+          throw new UnknownPropertyError(
+            `Unknown property for component '${type}': ${k}`,
+          );
+        props[k] = v.replace(/^['"]|['"]$/g, "");
+      }
     });
 
     const node: LegerNode = {
