@@ -142,13 +142,10 @@ async function setupTempSvelteKit(dir: string) {
     recursive: true,
   });
 
-  const routesDir = path.join(dir, "src/routes");
-  await fs.mkdir(routesDir, { recursive: true });
-
-  await fs.writeFile(
-    path.join(dir, "src/routes/+layout.ts"),
-    "export const prerender = true;",
-  );
+  const routesDir = path.join(configDir, "src/routes");
+  await fs.cp(routesDir, path.join(dir, "src/routes"), {
+    recursive: true,
+  });
 }
 
 async function compileLegerToSvelte(
