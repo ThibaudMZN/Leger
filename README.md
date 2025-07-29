@@ -16,7 +16,6 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 - [ ] custom svelte support
 - [ ] mixin support
 - [ ] better parsing
-  - [ ] components don't need ()
   - [ ] allow nested trailing text
 - [ ] Test `build` and `dev` a bit more
   - [ ] It would be best to use vite.build and vite.createServer
