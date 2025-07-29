@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import { builtinModules } from "module";
 
 export default defineConfig({
   build: {
@@ -13,10 +14,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "node:path",
-        "node:fs/promises",
-        "node:child_process",
-        "node:url",
+        ...builtinModules,
+        ...builtinModules.map((m) => `node:${m}`),
         "chokidar",
       ],
     },
