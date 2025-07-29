@@ -13,7 +13,8 @@
   "scripts": {
     "build": "vite build",
     "test": "node --import tsx --test './tests/**/*.spec.ts'",
-    "leger:build": "leger build"
+    "leger:build": "leger build",
+    "format": "prettier . --write"
   },
   "repository": {
     "type": "git",

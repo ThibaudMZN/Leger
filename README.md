@@ -20,7 +20,7 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 - [ ] add cli options (in/out) and/or root config file
 - [ ] Test `build` and `dev` a bit more
   - [ ] It would be best to use vite.build() and vite.createServer()
-  - [ ] We can make `.leg` parsing and svelteKit project scaffolding as a vite-plugin  
+  - [ ] We can make `.leg` parsing and svelteKit project scaffolding as a vite-plugin
 
 ## Example `.leg` file
 
