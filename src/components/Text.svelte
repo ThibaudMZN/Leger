@@ -8,8 +8,6 @@
 
 <style lang="scss">
     p {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-
       @each $size, $value in (
               sm: 0.75rem,
               md: 1rem,

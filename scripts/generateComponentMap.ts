@@ -9,7 +9,11 @@ const componentFiles = readdirSync(componentsDir).sort();
 const components = componentFiles.map((c) => {
   const source = readFileSync(path.join(componentsDir, c));
 
-  const ast = parse(source.toString("utf-8"));
+  const sourceWithoutCSS = source
+    .toString("utf-8")
+    .replace(/<style(\s[^>]*)?>[\s\S]*?<\/style>/gi, "");
+
+  const ast = parse(sourceWithoutCSS);
 
   const props: string[] = [];
   ast.instance?.content.body.forEach((node: any) => {
