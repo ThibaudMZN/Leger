@@ -10,20 +10,15 @@
     p {
       font-family: 'Helvetica', 'Arial', sans-serif;
 
-      &.sm {
-        font-size: 0.75rem;
-      }
-
-      &.md {
-        font-size: 1rem;
-      }
-
-      &.lg {
-        font-size: 2rem;
-      }
-
-      &.xl {
-        font-size: 3rem;
+      @each $size, $value in (
+              sm: 0.75rem,
+              md: 1rem,
+              lg: 2rem,
+              xl: 3rem
+      ) {
+        &.#{$size} {
+          font-size: $value;
+        }
       }
     }
 </style>

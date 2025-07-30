@@ -6,8 +6,8 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ## Todo
 
+- [x] add proper scss
 - [ ] more components
-- [ ] add proper scss
 - [ ] front-matter support
 - [ ] markdown support
 - [ ] custom svelte support

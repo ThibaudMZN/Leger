@@ -13,8 +13,10 @@
       justify-items: center;
       gap: 1rem;
 
-      &.col-3 {
-        grid-template-columns: repeat(3, 1fr);
+      @for $i from 1 through 12 {
+        &.col-#{$i} {
+          grid-template-columns: repeat(#{$i}, 1fr);
+        }
       }
     }
 </style>
