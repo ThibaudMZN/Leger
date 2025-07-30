@@ -101,14 +101,13 @@ describe("Leger CLI build command", () => {
   it("should omit non .leg files", async () => {
     let generatedFile: Record<string, any> = {};
     mockFsReaddir.mock.mockImplementation(async () => ["index.not-leg"]);
-    mockFsWriteFile.mock.mockImplementationOnce(
-      async (target: string, output: string) => {
-        generatedFile = { target, output };
-      },
-    );
+    let fileWritten = false;
+    mockFsWriteFile.mock.mockImplementation(async () => {
+      fileWritten = true;
+    });
 
     await build(defaultTestOptions, exec);
-    assert.doesNotMatch(generatedFile.target, /index/);
+    assert.equal(fileWritten, false);
   });
 
   it("should return number of compiled files", async () => {
