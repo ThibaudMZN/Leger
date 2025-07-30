@@ -6,9 +6,6 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ## Todo
 
-- [x] extract component list from actual components
-  - [x] check properties and throw warning if unknown
-- [x] add global stylesheet
 - [ ] more components
 - [ ] add proper scss
 - [ ] front-matter support
