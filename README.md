@@ -4,6 +4,19 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 
 ![Tests](https://img.shields.io/github/actions/workflow/status/ThibaudMZN/Leger/test.yml?label=Tests&logo=github)
 
+## Target transpiling pipeline
+
+```mermaid
+graph
+    Dir[Local directory] --> Files(.leg files)
+    Dir[Local directory] --> Config(leger.config.js)
+    Files -- transpile --> Svelte{.svelte}
+    Config -- configure --> Svelte
+    Svelte -- scaffold --> SvelteKit(SvelteKit routes)
+    SvelteKit -- vite.build --> StaticHTML(Static HTML)
+    SvelteKit -- vite.dev --> HMR(Local dev server)
+```
+
 ## Todo
 
 - [x] add proper scss
@@ -14,7 +27,9 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 - [ ] mixin support
 - [ ] better parsing
   - [ ] allow nested trailing text
-- [ ] add cli options (in/out) and/or root config file
+- [ ] add cli options (in/out)
+  - [ ] from cli
+  - [ ] from leger.config.js
 - [ ] Test `build` and `dev` a bit more
   - [ ] It would be best to use vite.build() and vite.createServer()
   - [ ] We can make `.leg` parsing and svelteKit project scaffolding as a vite-plugin
