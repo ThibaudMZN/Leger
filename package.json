@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "vite build",
-    "test": "node --import tsx --test './tests/**/*.spec.ts'",
+    "test": "node --experimental-test-module-mocks --import tsx --test './tests/**/*.spec.ts'",
     "leger:build": "leger build",
     "format": "prettier . --write"
   },

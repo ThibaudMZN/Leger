@@ -1,11 +1,12 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import { execSync, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import { parse } from "../parser/parser";
 import { render } from "../renderer/renderer";
 import { COMPONENTS } from "../constants";
 import { watch } from "chokidar";
 import { fileURLToPath } from "node:url";
+import { build as viteBuild } from "vite";
 
 export type BuildOptions = {
   paths: {
@@ -27,7 +28,6 @@ const defaultOptions: BuildOptions = {
 
 export async function build(
   options: BuildOptions = defaultOptions,
-  exec: typeof execSync = execSync,
 ): Promise<BuildResult> {
   const inDir = path.resolve(options.paths.input);
   const outDir = path.resolve(options.paths.output);
@@ -40,7 +40,12 @@ export async function build(
   await setupTempSvelteKit(svelteKitDir);
   await generateSvelteKitRoutes(outDir, svelteKitDir);
 
-  exec("npm run build", { cwd: svelteKitDir, stdio: "inherit" });
+  const cwd = process.cwd();
+  process.chdir(svelteKitDir);
+
+  await viteBuild({ root: svelteKitDir });
+
+  process.chdir(cwd);
 
   await fs.cp(path.join(svelteKitDir, "build"), ".leg", { recursive: true });
   await fs.rm(outDir, { recursive: true });

@@ -17,6 +17,8 @@ export default defineConfig({
         ...builtinModules,
         ...builtinModules.map((m) => `node:${m}`),
         "chokidar",
+        "vite",
+        "fsevents",
       ],
     },
     emptyOutDir: true,

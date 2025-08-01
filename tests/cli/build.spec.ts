@@ -1,23 +1,40 @@
-import { describe, it, Mock, beforeEach, afterEach, mock } from "node:test";
+import {
+  describe,
+  it,
+  Mock,
+  beforeEach,
+  afterEach,
+  mock,
+  before,
+} from "node:test";
 import assert from "node:assert";
-import { build, BuildOptions } from "../../src/cli/build";
+import { BuildOptions, BuildResult } from "../../src/cli/build";
 
 import path from "path";
 import fs from "fs/promises";
-import { execSync } from "child_process";
 
-describe("Leger CLI build command", () => {
+describe("Leger build command", async () => {
   let mockPathResolve: Mock<any>;
   let mockFsMkdir: Mock<any>;
   let mockFsReaddir: Mock<any>;
   let mockFsReadFile: Mock<any>;
   let mockFsWriteFile: Mock<any>;
 
-  const exec: typeof execSync = mock.fn();
-
   const defaultTestOptions: BuildOptions = {
     paths: { input: "/input", output: "/output" },
   };
+
+  let build: (option: BuildOptions) => Promise<BuildResult>;
+  before(async () => {
+    // const viteNamedExports = await import("vite").then((v) => v);
+    mock.module("vite", {
+      namedExports: {
+        build: mock.fn(),
+      },
+    });
+
+    ({ build } = await import("../../src/cli/build"));
+  });
 
   beforeEach((context) => {
     if ("mock" in context) {
@@ -33,6 +50,7 @@ describe("Leger CLI build command", () => {
 
       context.mock.method(fs, "cp", async () => {});
       context.mock.method(fs, "rm", async () => {});
+      context.mock.method(process, "chdir", () => {});
     }
   });
 
@@ -40,19 +58,19 @@ describe("Leger CLI build command", () => {
     if ("mock" in context) context.mock.reset();
   });
 
-  it("can resolve input and output path", async () => {
+  await it("can resolve input and output path", async () => {
     let resolvedPath: string[] = [];
     mockPathResolve.mock.mockImplementation((target: string) => {
       resolvedPath.push(target);
       return "";
     });
 
-    await build(defaultTestOptions, exec);
+    await build(defaultTestOptions);
 
     assert.deepEqual(resolvedPath, ["/input", "/output"]);
   });
 
-  it("can create output dir", async () => {
+  await it("can create output dir", async () => {
     let createdDirectory: Record<string, any> = {};
     mockFsMkdir.mock.mockImplementationOnce(
       async (target: string, options: Record<string, any>) => {
@@ -60,25 +78,25 @@ describe("Leger CLI build command", () => {
       },
     );
 
-    await build(defaultTestOptions, exec);
+    await build(defaultTestOptions);
 
     assert.equal(createdDirectory.target, "/output");
     assert.deepEqual(createdDirectory.options, { recursive: true });
   });
 
-  it("can read all files from input directory", async () => {
+  await it("can read all files from input directory", async () => {
     let readDirectory: string = "";
     mockFsReaddir.mock.mockImplementationOnce(async (target: string) => {
       readDirectory = target;
       return [];
     });
 
-    await build(defaultTestOptions, exec);
+    await build(defaultTestOptions);
 
     assert.equal(readDirectory, "/input");
   });
 
-  it("can generate svelte files", async () => {
+  await it("can generate svelte files", async () => {
     let generatedFile: Record<string, any> = {};
     mockFsReaddir.mock.mockImplementationOnce(async () => ["index.leg"]);
     mockFsReadFile.mock.mockImplementationOnce(
@@ -90,7 +108,7 @@ describe("Leger CLI build command", () => {
       },
     );
 
-    await build(defaultTestOptions, exec);
+    await build(defaultTestOptions);
     assert.match(generatedFile.target, /\/output\/index.svelte/);
     assert.match(
       generatedFile.output,
@@ -98,7 +116,7 @@ describe("Leger CLI build command", () => {
     );
   });
 
-  it("should omit non .leg files", async () => {
+  await it("should omit non .leg files", async () => {
     let generatedFile: Record<string, any> = {};
     mockFsReaddir.mock.mockImplementation(async () => ["index.not-leg"]);
     let fileWritten = false;
@@ -106,14 +124,14 @@ describe("Leger CLI build command", () => {
       fileWritten = true;
     });
 
-    await build(defaultTestOptions, exec);
+    await build(defaultTestOptions);
     assert.equal(fileWritten, false);
   });
 
-  it("should return number of compiled files", async () => {
+  await it("should return number of compiled files", async () => {
     mockFsReaddir.mock.mockImplementation(async () => ["a.leg", "b.leg"]);
 
-    const result = await build(defaultTestOptions, exec);
+    const result = await build(defaultTestOptions);
     assert.deepEqual(result.filesCount, 2);
   });
 });
