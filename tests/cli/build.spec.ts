@@ -1,137 +1,75 @@
-import {
-  describe,
-  it,
-  Mock,
-  beforeEach,
-  afterEach,
-  mock,
-  before,
-} from "node:test";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { BuildOptions, BuildResult } from "../../src/cli/build";
+import { build } from "../../src/cli/build";
+import { InMemoryFileSystem } from "../builders/fileSystem.inMemory";
+import { BuildOptions } from "../../src/cli/build";
 
-import path from "path";
 import fs from "fs/promises";
+import path from "path";
 
-describe("Leger build command", async () => {
-  let mockPathResolve: Mock<any>;
-  let mockFsMkdir: Mock<any>;
-  let mockFsReaddir: Mock<any>;
-  let mockFsReadFile: Mock<any>;
-  let mockFsWriteFile: Mock<any>;
+const defaultTestOptions: BuildOptions = {
+  paths: { input: "/input", output: "/output" },
+};
 
-  const defaultTestOptions: BuildOptions = {
-    paths: { input: "/input", output: "/output" },
-  };
-
-  let build: (option: BuildOptions) => Promise<BuildResult>;
-  before(async () => {
-    // const viteNamedExports = await import("vite").then((v) => v);
-    mock.module("vite", {
-      namedExports: {
-        build: mock.fn(),
-      },
-    });
-
-    ({ build } = await import("../../src/cli/build"));
-  });
+describe("Leger build command", () => {
+  let fileSystem: InMemoryFileSystem;
 
   beforeEach((context) => {
     if ("mock" in context) {
-      mockPathResolve = context.mock.method(
-        path,
-        "resolve",
-        (path: string) => path,
-      );
-      mockFsMkdir = context.mock.method(fs, "mkdir", async () => "");
-      mockFsReaddir = context.mock.method(fs, "readdir", async () => []);
-      mockFsReadFile = context.mock.method(fs, "readFile", async () => "");
-      mockFsWriteFile = context.mock.method(fs, "writeFile", async () => {});
+      context.mock.method(path, "resolve", (path: string) => path);
 
-      context.mock.method(fs, "cp", async () => {});
-      context.mock.method(fs, "rm", async () => {});
-      context.mock.method(process, "chdir", () => {});
+      fileSystem = new InMemoryFileSystem();
+
+      const methods = ["mkdir", "rm", "cp", "readdir", "readFile", "writeFile"];
+      methods.forEach((method) => {
+        // @ts-ignore
+        context.mock.method(fs, method, fileSystem[method].bind(fileSystem));
+      });
     }
+
+    fileSystem.set(defaultTestOptions.paths.input, {
+      "index.leg": "",
+    });
   });
 
   afterEach((context) => {
     if ("mock" in context) context.mock.reset();
   });
 
-  await it("can resolve input and output path", async () => {
-    let resolvedPath: string[] = [];
-    mockPathResolve.mock.mockImplementation((target: string) => {
-      resolvedPath.push(target);
-      return "";
-    });
-
+  it("clears and create output dir", async () => {
     await build(defaultTestOptions);
 
-    assert.deepEqual(resolvedPath, ["/input", "/output"]);
+    const outDir = fileSystem.get(defaultTestOptions.paths.output);
+    assert.notEqual(outDir, undefined);
   });
 
-  await it("can create output dir", async () => {
-    let createdDirectory: Record<string, any> = {};
-    mockFsMkdir.mock.mockImplementationOnce(
-      async (target: string, options: Record<string, any>) => {
-        createdDirectory = { target, options };
-      },
-    );
-
+  it("copies components script to output", async () => {
     await build(defaultTestOptions);
 
-    assert.equal(createdDirectory.target, "/output");
-    assert.deepEqual(createdDirectory.options, { recursive: true });
-  });
-
-  await it("can read all files from input directory", async () => {
-    let readDirectory: string = "";
-    mockFsReaddir.mock.mockImplementationOnce(async (target: string) => {
-      readDirectory = target;
-      return [];
-    });
-
-    await build(defaultTestOptions);
-
-    assert.equal(readDirectory, "/input");
-  });
-
-  await it("can generate svelte files", async () => {
-    let generatedFile: Record<string, any> = {};
-    mockFsReaddir.mock.mockImplementationOnce(async () => ["index.leg"]);
-    mockFsReadFile.mock.mockImplementationOnce(
-      async () => "text(size=large) Hello, world!",
-    );
-    mockFsWriteFile.mock.mockImplementationOnce(
-      async (target: string, output: string) => {
-        generatedFile = { target, output };
-      },
-    );
-
-    await build(defaultTestOptions);
-    assert.match(generatedFile.target, /\/output\/index.svelte/);
+    const outDir = fileSystem.get(defaultTestOptions.paths.output);
     assert.match(
-      generatedFile.output,
-      /<Text size="large">Hello, world!<\/Text>/,
+      outDir["/output/scripts/components.iife.js"],
+      /components.iife.js$/,
     );
   });
 
-  await it("should omit non .leg files", async () => {
-    let generatedFile: Record<string, any> = {};
-    mockFsReaddir.mock.mockImplementation(async () => ["index.not-leg"]);
-    let fileWritten = false;
-    mockFsWriteFile.mock.mockImplementation(async () => {
-      fileWritten = true;
-    });
-
+  it("write compiled file", async () => {
     await build(defaultTestOptions);
-    assert.equal(fileWritten, false);
+
+    const output = fileSystem.get(defaultTestOptions.paths.output);
+    assert.match(output.file, /<!DOCTYPE html>/);
+    assert.match(output.file, /<leger-text>/);
   });
 
-  await it("should return number of compiled files", async () => {
-    mockFsReaddir.mock.mockImplementation(async () => ["a.leg", "b.leg"]);
-
+  it("returns the file count", async () => {
     const result = await build(defaultTestOptions);
-    assert.deepEqual(result.filesCount, 2);
+
+    assert.equal(result.filesCount, 1);
+  });
+
+  it("returns the duration", async () => {
+    const result = await build(defaultTestOptions);
+
+    assert.equal(result.duration > 0, true);
   });
 });
