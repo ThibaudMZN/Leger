@@ -31,7 +31,9 @@ export const build = async (
   const inDir = path.resolve(options.paths.input);
   const outDir = path.resolve(options.paths.output);
 
-  await fs.rm(outDir, { recursive: true });
+  try {
+    await fs.rm(outDir, { recursive: true });
+  } catch (err) {}
   await fs.mkdir(outDir, { recursive: true });
 
   const allFiles = await fs.readdir(inDir, {

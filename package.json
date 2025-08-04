@@ -1,6 +1,6 @@
 {
   "name": "leger",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Lightweight Static Site Generator (SSG) built with Svelte & Vite",
   "type": "module",
   "main": "dist/cli/index.js",
