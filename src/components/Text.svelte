@@ -1,3 +1,6 @@
+<svelte:options customElement="leger-text" />
+
+
 <script lang="ts">
     export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
 </script>
