@@ -1,6 +1,6 @@
 # Léger
 
-Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
+Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite, shipped with no dependencies.
 
 ![Tests](https://img.shields.io/github/actions/workflow/status/ThibaudMZN/Leger/test.yml?label=Tests&logo=github)
 
@@ -13,8 +13,8 @@ graph
     Files -- transpile --> HTML{.html}
     Config -- configure --> HTML
     Leger[Leger] -- webComponents --> HTML
-    HTML -- vite.build --> StaticHTML(Static HTML)
-    HTML -- vite.dev --> HMR(Local dev server)
+    HTML -- build --> StaticHTML(Static HTML)
+    HTML -- dev --> HMR(Local dev server)
 ```
 
 ## Todo
@@ -30,9 +30,6 @@ graph
 - [ ] add cli options (in/out)
   - [ ] from cli
   - [ ] from leger.config.js
-- [ ] Test `build` and `dev` a bit more
-  - [ ] It would be best to use vite.build() and vite.createServer()
-  - [ ] We can make `.leg` parsing and svelteKit project scaffolding as a vite-plugin
 
 ## Example `.leg` file
 
@@ -41,14 +38,4 @@ section(columns="2")
     text(size="large") This is awesome
     text(size="small") ... and this might be too small
 button() Sign up
-```
-
-...would generate
-
-```sveltehtml
-<Section columns="2">
-    <Text size="large">This is awesome</Text>
-    <Text size="small">... and this might be too small</Text>
-</Section>
-<Button>Sign up</Button>
 ```
