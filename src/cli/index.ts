@@ -2,7 +2,6 @@
 
 import { build } from "./build";
 import { dev } from "./dev";
-import { pathToFileURL } from "node:url";
 
 export async function runCli(command = process.argv[2]) {
   if (command === "build") {
@@ -18,6 +17,4 @@ export async function runCli(command = process.argv[2]) {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  runCli().then();
-}
+runCli().then();
