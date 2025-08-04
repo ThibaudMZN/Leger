@@ -1,12 +1,9 @@
 import path from "node:path";
-import fs from "node:fs/promises";
-import { spawn } from "node:child_process";
 import { parse } from "../parser/parser";
 import { render } from "../renderer/renderer";
-import { COMPONENTS } from "../constants";
-import { watch } from "chokidar";
+import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { build as viteBuild } from "vite";
+import { TEMPLATE } from "./htmlUtils";
 
 export type BuildOptions = {
   paths: {
@@ -17,181 +14,59 @@ export type BuildOptions = {
 
 export type BuildResult = {
   filesCount: number;
+  duration: number;
 };
 
 const defaultOptions: BuildOptions = {
   paths: {
     input: "pages",
-    output: ".leg/generated",
+    output: "dist-leger",
   },
 };
 
-export async function build(
+export const build = async (
   options: BuildOptions = defaultOptions,
-): Promise<BuildResult> {
+): Promise<BuildResult> => {
+  const initialTime = performance.now();
   const inDir = path.resolve(options.paths.input);
   const outDir = path.resolve(options.paths.output);
-  await fs.mkdir(outDir, { recursive: true });
-  const files = await fs.readdir(inDir);
 
-  await compileLegerToSvelte(files, inDir, outDir);
-
-  const svelteKitDir = path.join(outDir, ".sveltekit");
-  await setupTempSvelteKit(svelteKitDir);
-  await generateSvelteKitRoutes(outDir, svelteKitDir);
-
-  const cwd = process.cwd();
-  process.chdir(svelteKitDir);
-
-  await viteBuild({ root: svelteKitDir });
-
-  process.chdir(cwd);
-
-  await fs.cp(path.join(svelteKitDir, "build"), ".leg", { recursive: true });
   await fs.rm(outDir, { recursive: true });
-
-  return { filesCount: files.length };
-}
-
-export async function dev(
-  options: BuildOptions = defaultOptions,
-): Promise<void> {
-  const inDir = path.resolve(options.paths.input);
-  const outDir = path.resolve(`.leg-dev-${new Date().getTime()}`);
   await fs.mkdir(outDir, { recursive: true });
-  const files = await fs.readdir(inDir);
 
-  await compileLegerToSvelte(files, inDir, outDir);
-
-  const svelteKitDir = path.join(outDir, ".sveltekit");
-  await setupTempSvelteKit(svelteKitDir);
-  await generateSvelteKitRoutes(outDir, svelteKitDir);
-
-  const svelteKitProcess = spawn("npm", ["run", "dev"], {
-    stdio: "inherit",
-    cwd: svelteKitDir,
+  const allFiles = await fs.readdir(inDir, {
+    withFileTypes: true,
+    recursive: true,
   });
 
-  console.log(`👀 Watching ${inDir} for changes...`);
-  const watcher = watch(inDir, {
-    ignoreInitial: true,
-  });
+  const legerFiles = allFiles
+    .filter((f) => f.isFile() && f.name.endsWith(".leg"))
+    .map((f) => path.join(path.relative(inDir, f.parentPath), f.name));
 
-  watcher.on("change", async (legerPath) => {
-    console.log(`📝 Changed: ${legerPath}`);
-    await compileLegerToSvelte(files, inDir, outDir);
-    await generateSvelteKitRoutes(outDir, svelteKitDir);
-  });
+  let filesCount = 0;
+  for (const file of legerFiles) {
+    const filePath = path.resolve(inDir, file);
+    const content = await fs.readFile(filePath, "utf-8");
+    const ast = parse(content);
+    const html = render(ast);
 
-  watcher.on("add", async (legerPath) => {
-    console.log(`➕ Added: ${legerPath}`);
-    await compileLegerToSvelte(files, inDir, outDir);
-    await generateSvelteKitRoutes(outDir, svelteKitDir);
-  });
+    const htmlContent = TEMPLATE(html.content);
+    const outFilePath = path.resolve(outDir, file.replace(".leg", ".html"));
 
-  watcher.on("unlink", async (legerPath) => {
-    console.log(`🗑️  Deleted: ${legerPath}`);
-    const name = path.basename(legerPath, ".leg");
-    const routeDir = name === "index" ? "src/routes" : `src/routes/${name}`;
-    const sveltePath = path.join(routeDir, "+page.svelte");
+    const dir = path.dirname(outFilePath);
+    await fs.mkdir(dir, { recursive: true });
 
-    try {
-      await fs.unlink(sveltePath);
-      console.log(`🗑️  Cleaned up: ${sveltePath}`);
-      await compileLegerToSvelte(files, inDir, outDir);
-      await generateSvelteKitRoutes(outDir, svelteKitDir);
-    } catch (error) {
-      // File might not exist, ignore
-    }
-  });
+    await fs.writeFile(outFilePath, htmlContent);
 
-  process.on("SIGINT", () => {
-    console.log("\n🛑 Shutting down...");
-    watcher.close();
-    if (svelteKitProcess) {
-      svelteKitProcess.kill();
-    }
-    fs.rm(outDir, { recursive: true }).then(() => process.exit(0));
-  });
-
-  console.log("🎉 Development mode started!");
-  console.log(`📁 Watching: ${inDir}`);
-  console.log("🌐 SvelteKit: http://localhost:5173");
-  console.log("🔥 Hot reload: Enabled");
-  console.log("Press Ctrl+C to stop");
-}
-
-async function setupTempSvelteKit(dir: string) {
-  await fs.mkdir(dir, { recursive: true });
+    filesCount++;
+  }
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
-  const configDir = path.join(__dirname, "../sveltekit-config");
+  const script = path.join(__dirname, "../components/components.iife.js");
+  await fs.cp(script, path.join(outDir, "scripts", "components.iife.js"));
 
-  const cpToTarget = async (file: string) =>
-    fs.cp(path.join(configDir, file), path.join(dir, file));
-
-  await fs.cp(
-    path.join(configDir, "app.html"),
-    path.join(dir, "src/app.html"),
-    { recursive: true },
-  );
-
-  await cpToTarget("package.json");
-  await cpToTarget("svelte.config.js");
-  await cpToTarget("vite.config.js");
-
-  const componentsDir = path.join(__dirname, "../components");
-  await fs.cp(componentsDir, path.join(dir, "src/lib/components"), {
-    recursive: true,
-  });
-
-  const routesDir = path.join(configDir, "src/routes");
-  await fs.cp(routesDir, path.join(dir, "src/routes"), {
-    recursive: true,
-  });
-}
-
-async function compileLegerToSvelte(
-  files: string[],
-  inDir: string,
-  outDir: string,
-) {
-  for (const file of files) {
-    if (!file.endsWith(".leg")) continue;
-
-    const name = file.replace(".leg", "");
-    const raw = await fs.readFile(path.join(inDir, file), "utf-8");
-    const ast = parse(raw);
-    const svelteRender = render(ast);
-
-    const imports = `<script>\n${Array.from(svelteRender.usedComponents)
-      .map((type) => {
-        const componentName = COMPONENTS[type].name;
-        return `    import ${componentName} from '$lib/components/${componentName}.svelte';`;
-      })
-      .join("\n")}\n</script>`;
-
-    const svelteCode = [imports, svelteRender.content].join("\n\n");
-
-    const outPath = path.join(outDir, `${name}.svelte`);
-    await fs.writeFile(outPath, svelteCode, "utf-8");
-  }
-}
-
-async function generateSvelteKitRoutes(outDir: string, svelteKitDir: string) {
-  const svelteFiles = await fs.readdir(outDir);
-  for (const file of svelteFiles.filter((f) => f.endsWith(".svelte"))) {
-    const name = path.basename(file, ".svelte");
-    const content = await fs.readFile(path.join(outDir, file), "utf-8");
-
-    const routeDir =
-      name === "index"
-        ? path.join(svelteKitDir, "src/routes")
-        : path.join(svelteKitDir, "src/routes", name);
-
-    if (name !== "index") await fs.mkdir(routeDir, { recursive: true });
-    await fs.writeFile(path.join(routeDir, "+page.svelte"), content);
-  }
-}
+  const duration = performance.now() - initialTime;
+  return { filesCount, duration };
+};
