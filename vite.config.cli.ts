@@ -26,14 +26,14 @@ export default defineConfig({
   plugins: [
     viteStaticCopy({
       targets: [
-        {
+        /*{
           src: "sveltekit-config",
           dest: ".",
         },
         {
-          src: "src/components/**/*",
+          src: "src/components/!**!/!*",
           dest: "./components",
-        },
+        },*/
       ],
     }),
   ],

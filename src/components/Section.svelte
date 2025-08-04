@@ -1,3 +1,5 @@
+<svelte:options customElement="leger-section" />
+
 <script lang="ts">
     export let columns: number = 1;
 </script>

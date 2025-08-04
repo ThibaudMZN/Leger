@@ -9,7 +9,7 @@ describe("Leger renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result.content, "<Text></Text>");
+    assert.equal(result.content, "<leger-text></leger-text>");
   });
 
   it("can add props", () => {
@@ -19,7 +19,10 @@ describe("Leger renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result.content, '<Text props1="a" props2="b"></Text>');
+    assert.equal(
+      result.content,
+      '<leger-text props1="a" props2="b"></leger-text>',
+    );
   });
 
   it("can render content", () => {
@@ -29,7 +32,7 @@ describe("Leger renderer", () => {
 
     const result = render(nodes);
 
-    assert.equal(result.content, "<Text>Some inner content</Text>");
+    assert.equal(result.content, "<leger-text>Some inner content</leger-text>");
   });
 
   it("can render nested components", () => {
@@ -43,9 +46,9 @@ describe("Leger renderer", () => {
 
     const results = render(nodes).content.split("\n");
 
-    assert.equal(results[0], "<Text>");
-    assert.equal(results[1], "  <Text>Some content inside</Text>");
-    assert.equal(results[2], "</Text>");
+    assert.equal(results[0], "<leger-text>");
+    assert.equal(results[1], "  <leger-text>Some content inside</leger-text>");
+    assert.equal(results[2], "</leger-text>");
   });
 
   it("can return a list of used components", () => {

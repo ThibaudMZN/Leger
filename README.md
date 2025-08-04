@@ -10,11 +10,11 @@ Lightweight Static Site Generator (SSG) built with Svelte &amp; Vite
 graph
     Dir[Local directory] --> Files(.leg files)
     Dir[Local directory] --> Config(leger.config.js)
-    Files -- transpile --> Svelte{.svelte}
-    Config -- configure --> Svelte
-    Svelte -- scaffold --> SvelteKit(SvelteKit routes)
-    SvelteKit -- vite.build --> StaticHTML(Static HTML)
-    SvelteKit -- vite.dev --> HMR(Local dev server)
+    Files -- transpile --> HTML{.html}
+    Config -- configure --> HTML
+    Leger[Leger] -- webComponents --> HTML
+    HTML -- vite.build --> StaticHTML(Static HTML)
+    HTML -- vite.dev --> HMR(Local dev server)
 ```
 
 ## Todo

@@ -11,9 +11,10 @@
     "leger": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "npm run build:cli && npm run build:webcomponents",
+    "build:cli": "vite build -c vite.config.cli.ts",
+    "build:webcomponents": "vite build -c vite.config.webcomponents.ts",
     "test": "node --experimental-test-module-mocks --import tsx --test './tests/**/*.spec.ts'",
-    "leger:build": "leger build",
     "format": "prettier . --write"
   },
   "repository": {
@@ -39,12 +40,7 @@
     "sass-embedded": "^1.89.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "vite-plugin-static-copy": "^3.1.1"
-  },
-  "dependencies": {
-    "@sveltejs/adapter-static": "^3.0.8",
-    "@sveltejs/kit": "^2.26.1",
-    "chokidar": "^4.0.3",
+    "vite-plugin-static-copy": "^3.1.1",
     "vite": "^6.3.5"
   }
 }
