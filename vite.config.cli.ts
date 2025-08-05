@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { builtinModules } from "module";
 
 export default defineConfig({
@@ -23,18 +22,4 @@ export default defineConfig({
     },
     emptyOutDir: true,
   },
-  plugins: [
-    viteStaticCopy({
-      targets: [
-        /*{
-          src: "sveltekit-config",
-          dest: ".",
-        },
-        {
-          src: "src/components/!**!/!*",
-          dest: "./components",
-        },*/
-      ],
-    }),
-  ],
 });
