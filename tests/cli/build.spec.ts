@@ -1,11 +1,12 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { build } from "../../src/cli/build";
-import { InMemoryFileSystem } from "../builders/fileSystem.inMemory";
+import { Dir, InMemoryFileSystem } from "../builders/fileSystem.inMemory";
 import { BuildOptions } from "../../src/cli/build";
 
 import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "node:url";
 
 const defaultTestOptions: BuildOptions = {
   paths: { input: "/input", output: "/output" },
@@ -16,7 +17,10 @@ describe("Leger build command", () => {
 
   beforeEach((context) => {
     if ("mock" in context) {
-      context.mock.method(path, "resolve", (path: string) => path);
+      context.mock.method(path, "resolve", (...args: string[]) =>
+        args.join("/"),
+      );
+      context.mock.method(path, "dirname", () => "/output");
 
       fileSystem = new InMemoryFileSystem();
 
@@ -27,9 +31,15 @@ describe("Leger build command", () => {
       });
     }
 
-    fileSystem.set(defaultTestOptions.paths.input, {
-      "index.leg": "",
-    });
+    fileSystem.writeFile(
+      `${defaultTestOptions.paths.input}/index.leg`,
+      "text() Built text",
+    );
+
+    fileSystem.writeFile(
+      "/components/components.iife.js",
+      "console.log('webcomponents');",
+    );
   });
 
   afterEach((context) => {
@@ -40,25 +50,26 @@ describe("Leger build command", () => {
     await build(defaultTestOptions);
 
     const outDir = fileSystem.get(defaultTestOptions.paths.output);
-    assert.notEqual(outDir, undefined);
+    assert.equal(outDir?.type, "dir");
   });
 
   it("copies components script to output", async () => {
     await build(defaultTestOptions);
 
-    const outDir = fileSystem.get(defaultTestOptions.paths.output);
-    assert.match(
-      outDir["/output/scripts/components.iife.js"],
-      /components.iife.js$/,
+    const outScript = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/scripts/components.iife.js`,
     );
+    assert.equal(outScript, "console.log('webcomponents');");
   });
 
   it("write compiled file", async () => {
     await build(defaultTestOptions);
 
-    const output = fileSystem.get(defaultTestOptions.paths.output);
-    assert.match(output.file, /<!DOCTYPE html>/);
-    assert.match(output.file, /<leger-text>/);
+    const output = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/index.html`,
+    );
+    assert.match(output, /<!DOCTYPE html>/);
+    assert.match(output, /<leger-text>/);
   });
 
   it("returns the file count", async () => {

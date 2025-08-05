@@ -1,47 +1,122 @@
+export type File = { type: "file"; content: string };
+export type Dir = { type: "dir"; children: Map<string, Node> };
+type Node = File | Dir;
+
+const makeDir = (): Dir => ({ type: "dir", children: new Map<string, Node>() });
+const makeFile = (content: string): File => ({ type: "file", content });
+
+const isDir = (node: Node): node is Dir => node.type === "dir";
+const isFile = (node: Node): node is File => node.type === "file";
+
 export class InMemoryFileSystem {
-  private _fs: Record<string, any> = {};
+  private _fs: Dir = makeDir();
 
-  private _extractPath(path: string): string {
-    return path.split("/").filter(Boolean)[0];
+  get(path: string): Node | undefined {
+    const parts = path.split("/").filter(Boolean);
+    return parts.reduce<Node>((current, part) => {
+      if (!isDir(current)) {
+        throw new Error(`Not a directory: ${part}`);
+      }
+      const next = current.children.get(part);
+      if (!next) {
+        throw new Error(`Path does not exist: ${path}`);
+      }
+      return next;
+    }, this._fs);
   }
 
-  get(path: string): Record<string, any> {
-    return this._fs[this._extractPath(path)];
+  private _walk(
+    path: string,
+    lastNodeCallback: (dir: Dir, part: string) => void,
+    noNextNodeCallback: (dir: Dir, part: string) => Node,
+  ): void {
+    const parts = path.split("/").filter(Boolean);
+
+    let current: Node = this._fs;
+    parts.forEach((part, index) => {
+      if (!isDir(current)) throw new Error(`Not a directory: ${part}`);
+
+      if (index === parts.length - 1) {
+        lastNodeCallback(current, part);
+      } else {
+        let next = current.children.get(part);
+        if (!next) next = noNextNodeCallback(current, part);
+
+        current = next;
+      }
+    });
   }
 
-  set(path: string, value: Record<string, any>): void {
-    this._fs[this._extractPath(path)] = value;
+  mkdir(path: string): void {
+    this._walk(
+      path,
+      (current, part) => current.children.set(part, makeDir()),
+      (current, part) => {
+        current.children.set(part, makeDir());
+        const next = current.children.get(part);
+        if (!next) throw new Error(`Path does not exist: ${path}`);
+        return next;
+      },
+    );
   }
 
-  mkdir(path: string) {
-    this._fs[this._extractPath(path)] = {};
-  }
-
-  rm(path: string) {
-    delete this._fs[this._extractPath(path)];
-  }
-
-  cp(input: string, output: string) {
-    this._fs[this._extractPath(output)] = {
-      ...this._fs[this._extractPath(output)],
-      [output]: input,
-    };
-  }
-
-  readdir(path: string) {
-    const files = this.get(path);
-    return Object.keys(files).map((f) => ({
-      name: f,
-      isFile: () => true,
-      parentPath: "",
-    }));
-  }
-
-  readFile(path: string) {
-    return "text()";
+  rm(path: string): void {
+    this._walk(
+      path,
+      (current, part) => current.children.delete(part),
+      () => {
+        throw new Error(`Path does not exist: ${path}`);
+      },
+    );
   }
 
   writeFile(path: string, content: string): void {
-    this._fs[this._extractPath(path)]["file"] = content;
+    this._walk(
+      path,
+      (current, part) => current.children.set(part, makeFile(content)),
+      (current, part) => {
+        current.children.set(part, makeDir());
+        const next = current.children.get(part);
+        if (!next) throw new Error(`Path does not exist: ${path}`);
+        return next;
+      },
+    );
+  }
+
+  cp(input: string, output: string): void {
+    const file = this.get(input);
+    if (!file || !isFile(file)) throw new Error(`Not a file: ${input}`);
+
+    this._walk(
+      output,
+      (current, part) => current.children.set(part, makeFile(file.content)),
+      (current, part) => {
+        current.children.set(part, makeDir());
+        const next = current.children.get(part);
+        if (!next) throw new Error(`Path does not exist: ${output}`);
+        return next;
+      },
+    );
+  }
+
+  readFile(path: string): string {
+    const file = this.get(path);
+    if (!file || !isFile(file)) throw new Error(`Cannot find file: ${path}`);
+
+    return file.content;
+  }
+
+  readdir(path: string) {
+    const folder = this.get(path);
+    if (!folder || !isDir(folder)) throw new Error(`Not a directory: ${path}`);
+
+    const parts = path.split("/").filter(Boolean);
+    const parentPath = `/${parts[parts.length - 1]}`;
+    const files = folder.children;
+    return files.entries().map(([name, node]) => ({
+      name,
+      isFile: () => node.type === "file",
+      parentPath,
+    }));
   }
 }
