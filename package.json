@@ -11,11 +11,13 @@
     "leger": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "npm run build:cli && npm run build:webcomponents",
+    "build": "npm run build:cli && npm run build:webcomponents && npm run build:styles",
     "build:cli": "vite build -c vite.config.cli.ts",
     "build:webcomponents": "vite build -c vite.config.webcomponents.ts",
+    "build:styles": "sass src/styles/main.scss dist/components/style.css",
     "test": "node --experimental-test-module-mocks --import tsx --test './tests/**/*.spec.ts'",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
