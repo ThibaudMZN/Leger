@@ -40,6 +40,7 @@ describe("Leger build command", () => {
       "/components/components.iife.js",
       "console.log('webcomponents');",
     );
+    fileSystem.writeFile("/components/style.css", "* { margin: 0; }");
   });
 
   afterEach((context) => {
@@ -62,6 +63,15 @@ describe("Leger build command", () => {
     assert.equal(outScript, "console.log('webcomponents');");
   });
 
+  it("copies styles to output", async () => {
+    await build(defaultTestOptions);
+
+    const outScript = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/styles/style.css`,
+    );
+    assert.equal(outScript, "* { margin: 0; }");
+  });
+
   it("write compiled file", async () => {
     await build(defaultTestOptions);
 
@@ -70,6 +80,27 @@ describe("Leger build command", () => {
     );
     assert.match(output, /<!DOCTYPE html>/);
     assert.match(output, /<leger-text>/);
+  });
+
+  it("includes webcomponents script in HTML files", async () => {
+    await build(defaultTestOptions);
+
+    const output = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/index.html`,
+    );
+    assert.match(
+      output,
+      /<script src="\/scripts\/components.iife.js" type="module">/,
+    );
+  });
+
+  it("includes styles in HTML files", async () => {
+    await build(defaultTestOptions);
+
+    const output = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/index.html`,
+    );
+    assert.match(output, /<link rel="stylesheet" href="styles\/style.css" \/>/);
   });
 
   it("returns the file count", async () => {

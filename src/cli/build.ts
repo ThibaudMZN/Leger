@@ -68,6 +68,8 @@ export const build = async (
 
   const script = path.join(__dirname, "../components/components.iife.js");
   await fs.cp(script, path.join(outDir, "scripts", "components.iife.js"));
+  const styles = path.join(__dirname, "../components/style.css");
+  await fs.cp(styles, path.join(outDir, "styles", "style.css"));
 
   const duration = performance.now() - initialTime;
   return { filesCount, duration };

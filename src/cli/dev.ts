@@ -27,6 +27,7 @@ const injectClientScript = (html: string): string => {
       <script>
         const evtSource = new EventSource('/sse');
         evtSource.addEventListener('reload', (event) => {
+          evtSource.close();
           location.reload();
         });
       </script>
@@ -45,6 +46,8 @@ export const dev = async (
 
   const script = path.join(__dirname, "../components/components.iife.js");
   const webComponentScript = await fs.readFile(script, "utf-8");
+  const styles = path.join(__dirname, "../components/style.css");
+  const stylesScript = await fs.readFile(styles, "utf-8");
 
   const broadcastReload = () => {
     for (const client of clients) {
@@ -79,6 +82,12 @@ export const dev = async (
     if (url === "/scripts/components.iife.js") {
       res.writeHead(200, { "Content-Type": "application/javascript" });
       res.end(webComponentScript);
+      return;
+    }
+
+    if (url === "/styles/style.css") {
+      res.writeHead(200, { "Content-Type": "text/css" });
+      res.end(stylesScript);
       return;
     }
 
