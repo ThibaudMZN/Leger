@@ -20,11 +20,11 @@ graph
 ## Todo
 
 - [ ] Favicon support
-  - [ ] Need to support local assets copied into build folder
+  - [x] Need to support local assets copied into build folder
 - [ ] more components
   - [ ] Header
   - [ ] Title
-  - [ ] Image
+  - [x] Image
   - [ ] Footer
   - [ ] Button
 - [ ] markdown support

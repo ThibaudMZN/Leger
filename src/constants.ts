@@ -4,6 +4,7 @@ type ComponentProps = {
 };
 
 export const COMPONENTS: Record<string, ComponentProps> = {
+  image: { name: "leger-image", props: ["source"] },
   link: { name: "leger-link", props: ["target"] },
   section: { name: "leger-section", props: ["columns"] },
   text: { name: "leger-text", props: ["size"] },
