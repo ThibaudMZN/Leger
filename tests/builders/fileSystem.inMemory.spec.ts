@@ -60,13 +60,24 @@ describe("In Memory File System", () => {
     });
   });
 
-  describe("when copying a file with cp", () => {
-    it("can copy its content", () => {
+  describe("when copying with cp", () => {
+    it("can copy a file content", () => {
       fs.writeFile("/folder/file.txt", "some content");
 
       fs.cp("/folder/file.txt", "/otherFolder/file.txt");
 
       const file = fs.get("/otherFolder/file.txt") as File;
+      assert.equal(file.type, "file");
+      assert.equal(file.content, "some content");
+    });
+
+    it("can copy a folder", () => {
+      fs.writeFile("/source/file.txt", "some content");
+      fs.mkdir("/destination");
+
+      fs.cp("/source", "/destination");
+
+      const file = fs.get("/destination/file.txt") as File;
       assert.equal(file.type, "file");
       assert.equal(file.content, "some content");
     });
@@ -95,6 +106,20 @@ describe("In Memory File System", () => {
       assert.equal(file1.name, "file1");
       assert.equal(file1.isFile(), true);
       assert.equal(file1.parentPath, "/folder");
+    });
+  });
+
+  describe("when getting stats from a node", () => {
+    it("returns an object with method for directory and file", () => {
+      fs.mkdir("/someFolder");
+      fs.writeFile("/someFile.txt", "some content");
+
+      const folderResult = fs.lstat("/someFolder");
+      assert.equal(folderResult.isDirectory(), true);
+      assert.equal(folderResult.isFile(), false);
+      const fileResult = fs.lstat("/someFile.txt");
+      assert.equal(fileResult.isDirectory(), false);
+      assert.equal(fileResult.isFile(), true);
     });
   });
 });

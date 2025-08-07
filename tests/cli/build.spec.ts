@@ -1,12 +1,11 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { build } from "../../src/cli/build";
-import { Dir, InMemoryFileSystem } from "../builders/fileSystem.inMemory";
+import { InMemoryFileSystem } from "../builders/fileSystem.inMemory";
 import { BuildOptions } from "../../src/cli/build";
 
 import fs from "fs/promises";
 import path from "path";
-import { fileURLToPath } from "node:url";
 
 const defaultTestOptions: BuildOptions = {
   paths: { input: "/input", output: "/output" },
@@ -24,7 +23,15 @@ describe("Leger build command", () => {
 
       fileSystem = new InMemoryFileSystem();
 
-      const methods = ["mkdir", "rm", "cp", "readdir", "readFile", "writeFile"];
+      const methods = [
+        "mkdir",
+        "rm",
+        "cp",
+        "readdir",
+        "readFile",
+        "writeFile",
+        "lstat",
+      ];
       methods.forEach((method) => {
         // @ts-ignore
         context.mock.method(fs, method, fileSystem[method].bind(fileSystem));
@@ -42,6 +49,12 @@ describe("Leger build command", () => {
     );
     fileSystem.writeFile("/components/style.css", "* { margin: 0; }");
     fileSystem.writeFile("/components/style.css.map", '{ "some": "value" }');
+
+    fileSystem.mkdir(`${defaultTestOptions.paths.input}/assets`);
+    fileSystem.writeFile(
+      `${defaultTestOptions.paths.input}/assets/someAssets.png`,
+      "This is not really a .png",
+    );
   });
 
   afterEach((context) => {
@@ -80,6 +93,15 @@ describe("Leger build command", () => {
       `${defaultTestOptions.paths.output}/styles/style.css.map`,
     );
     assert.equal(outScript, '{ "some": "value" }');
+  });
+
+  it("copies assets folder to output", async () => {
+    await build(defaultTestOptions);
+
+    const outScript = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/assets/someAssets.png`,
+    );
+    assert.equal(outScript, "This is not really a .png");
   });
 
   it("write compiled file", async () => {

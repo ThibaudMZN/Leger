@@ -74,6 +74,18 @@ export const build = async (
   const styleMap = path.join(__dirname, "../components/style.css.map");
   await fs.cp(styleMap, path.join(outDir, "styles", "style.css.map"));
 
+  try {
+    const inAssets = path.resolve(inDir, "assets");
+    const outAssets = path.resolve(outDir, "assets");
+    const assetsStats = await fs.lstat(inAssets);
+    if (assetsStats.isDirectory()) {
+      await fs.mkdir(outAssets);
+      await fs.cp(inAssets, outAssets, { recursive: true });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
   const duration = performance.now() - initialTime;
   return { filesCount, duration };
 };

@@ -84,19 +84,34 @@ export class InMemoryFileSystem {
   }
 
   cp(input: string, output: string): void {
-    const file = this.get(input);
-    if (!file || !isFile(file)) throw new Error(`Not a file: ${input}`);
-
-    this._walk(
-      output,
-      (current, part) => current.children.set(part, makeFile(file.content)),
-      (current, part) => {
-        current.children.set(part, makeDir());
-        const next = current.children.get(part);
-        if (!next) throw new Error(`Path does not exist: ${output}`);
-        return next;
-      },
-    );
+    const target = this.get(input);
+    if (!target) throw new Error(`Cannot find: ${input}`);
+    if (isFile(target))
+      this._walk(
+        output,
+        (current, part) => current.children.set(part, makeFile(target.content)),
+        (current, part) => {
+          current.children.set(part, makeDir());
+          const next = current.children.get(part);
+          if (!next) throw new Error(`Path does not exist: ${output}`);
+          return next;
+        },
+      );
+    else if (isDir(target))
+      this._walk(
+        output,
+        (current, part) => {
+          const localTarget = current.children.get(part);
+          if (localTarget && isDir(localTarget))
+            localTarget.children = target.children;
+        },
+        (current, part) => {
+          current.children.set(part, makeDir());
+          const next = current.children.get(part);
+          if (!next) throw new Error(`Path does not exist: ${output}`);
+          return next;
+        },
+      );
   }
 
   readFile(path: string): string {
@@ -118,5 +133,14 @@ export class InMemoryFileSystem {
       isFile: () => node.type === "file",
       parentPath,
     }));
+  }
+
+  lstat(path: string) {
+    const target = this.get(path);
+    if (!target) throw new Error(`Cannot find : ${path}`);
+    return {
+      isDirectory: () => target.type === "dir",
+      isFile: () => target.type === "file",
+    };
   }
 }
