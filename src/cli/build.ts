@@ -1,6 +1,6 @@
 import path from "node:path";
 import { parse } from "../parser/parser";
-import { render } from "../renderer/renderer";
+import { render, renderFrontmatter } from "../renderer/renderer";
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { TEMPLATE } from "./htmlUtils";
@@ -49,10 +49,11 @@ export const build = async (
   for (const file of legerFiles) {
     const filePath = path.resolve(inDir, file);
     const content = await fs.readFile(filePath, "utf-8");
-    const ast = parse(content);
-    const html = render(ast);
+    const parseResult = parse(content);
+    const html = render(parseResult.nodes);
+    const head = renderFrontmatter(parseResult.frontmatter);
 
-    const htmlContent = TEMPLATE(html.content);
+    const htmlContent = TEMPLATE(html.content, head);
     const outFilePath = path.resolve(outDir, file.replace(".leg", ".html"));
 
     const dir = path.dirname(outFilePath);

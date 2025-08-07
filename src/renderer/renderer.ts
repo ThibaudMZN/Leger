@@ -40,3 +40,12 @@ export function render(
     usedComponents,
   };
 }
+
+export function renderFrontmatter(frontmatter: Record<string, any>): string {
+  let result = `<title>${frontmatter.title ? frontmatter.title : "Leger"}</title>`;
+  if (frontmatter.siteName)
+    result += `\n<meta property="og:site_name" content="${frontmatter.siteName}">`;
+  if (frontmatter.description)
+    result += `\n<meta name="description" content="${frontmatter.description}">`;
+  return result;
+}

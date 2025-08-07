@@ -2,7 +2,7 @@ import * as http from "node:http";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { parse } from "../parser/parser";
-import { render } from "../renderer/renderer";
+import { render, renderFrontmatter } from "../renderer/renderer";
 import { TEMPLATE } from "./htmlUtils";
 import { fileURLToPath } from "node:url";
 
@@ -123,10 +123,11 @@ export const dev = async (
         filePath.replace(".html", ".leg"),
         "utf-8",
       );
-      const ast = parse(content);
-      const html = render(ast);
+      const parseResult = parse(content);
+      const html = render(parseResult.nodes);
+      const head = renderFrontmatter(parseResult.frontmatter);
 
-      const htmlContent = TEMPLATE(html.content);
+      const htmlContent = TEMPLATE(html.content, head);
       const withClient = injectClientScript(htmlContent);
       res.writeHead(200, { "Content-Type": contentType });
       res.end(withClient);
@@ -144,7 +145,7 @@ export const dev = async (
   });
 
   const close = (): Promise<void> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       console.log("\n\x1b[33m⏹ Shutting down...\x1b[0m");
 
       watcherAbortController.abort();
@@ -153,7 +154,10 @@ export const dev = async (
         client.end?.();
       }
 
-      server.close(() => resolve());
+      server.close((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
   };
 

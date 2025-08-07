@@ -20,8 +20,8 @@ graph
 ## Todo
 
 - [x] add proper scss
+- [x] front-matter support
 - [ ] more components
-- [ ] front-matter support
 - [ ] markdown support
 - [ ] custom svelte support
 - [ ] mixin support
@@ -38,4 +38,16 @@ section(columns="2")
     text(size="large") This is awesome
     text(size="small") ... and this might be too small
 button() Sign up
+```
+
+## Example full `.leg` file with metadata
+
+```jade
+---
+title: My own leger website
+description: You can write here some custom description
+siteName: My Own Site with Leger
+---
+
+text(size=xl) Hello, Leger
 ```

@@ -1,7 +1,22 @@
 import { COMPONENTS } from "../constants";
 import { UnknownComponentError, UnknownPropertyError } from "../errors";
 
-export function parse(input: string): LegerNode[] {
+export function splitContent(input: string): {
+  rawFrontmatter: string;
+  rawLegerContent: string;
+} {
+  const match = input.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!match) {
+    return { rawFrontmatter: "", rawLegerContent: input };
+  }
+
+  return {
+    rawFrontmatter: match[1].trim(),
+    rawLegerContent: input.slice(match[0].length).trim(),
+  };
+}
+
+export function parseLeger(input: string): LegerNode[] {
   const lines = input.split("\n").filter(Boolean);
 
   const root: LegerNode[] = [];
@@ -50,4 +65,35 @@ export function parse(input: string): LegerNode[] {
   }
 
   return root;
+}
+
+export function parseFrontmatter(input: string): Record<string, any> {
+  const frontmatter: Record<string, any> = {};
+
+  let previousKey = "";
+  for (const line of input.split("\n")) {
+    if (line.startsWith("  -")) {
+      const value = line.slice(3).trim();
+      frontmatter[previousKey] = [...frontmatter[previousKey], value];
+      continue;
+    }
+    const trimmed = line.trim();
+    const [key, value] = trimmed.split(":").map((s) => s.trim());
+    frontmatter[key] = value || [];
+    previousKey = key;
+  }
+  return frontmatter;
+}
+
+type ParseResult = {
+  nodes: LegerNode[];
+  frontmatter: Record<string, any>;
+};
+
+export function parse(input: string): ParseResult {
+  const { rawFrontmatter, rawLegerContent } = splitContent(input);
+  return {
+    frontmatter: parseFrontmatter(rawFrontmatter),
+    nodes: parseLeger(rawLegerContent),
+  };
 }
