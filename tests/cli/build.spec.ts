@@ -41,6 +41,7 @@ describe("Leger build command", () => {
       "console.log('webcomponents');",
     );
     fileSystem.writeFile("/components/style.css", "* { margin: 0; }");
+    fileSystem.writeFile("/components/style.css.map", '{ "some": "value" }');
   });
 
   afterEach((context) => {
@@ -70,6 +71,15 @@ describe("Leger build command", () => {
       `${defaultTestOptions.paths.output}/styles/style.css`,
     );
     assert.equal(outScript, "* { margin: 0; }");
+  });
+
+  it("copies styles map to output", async () => {
+    await build(defaultTestOptions);
+
+    const outScript = fileSystem.readFile(
+      `${defaultTestOptions.paths.output}/styles/style.css.map`,
+    );
+    assert.equal(outScript, '{ "some": "value" }');
   });
 
   it("write compiled file", async () => {

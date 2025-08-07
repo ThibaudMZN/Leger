@@ -29,6 +29,7 @@ describe("Leger dev command", () => {
       context.mock.method(fs, "readFile", (path: string) => {
         if (path.endsWith(".leg")) return "text() Dev server";
         if (path.endsWith(".css")) return "* { margin: 0; }";
+        if (path.endsWith(".css.map")) return '{ "some": "value" }';
         return "console.log('webcomponents');";
       });
     }
@@ -61,6 +62,12 @@ describe("Leger dev command", () => {
     const response = await fetch("http://localhost:7363/styles/style.css");
 
     assert.equal(await response.text(), "* { margin: 0; }");
+  });
+
+  it("can serve style map", async () => {
+    const response = await fetch("http://localhost:7363/styles/style.css.map");
+
+    assert.equal(await response.text(), '{ "some": "value" }');
   });
 
   it("injects a client script inside HTML content", async () => {

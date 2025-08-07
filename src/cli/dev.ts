@@ -48,6 +48,8 @@ export const dev = async (
   const webComponentScript = await fs.readFile(script, "utf-8");
   const styles = path.join(__dirname, "../components/style.css");
   const stylesScript = await fs.readFile(styles, "utf-8");
+  const styleMap = path.join(__dirname, "../components/style.css.map");
+  const styleMapScript = await fs.readFile(styleMap, "utf-8");
 
   const broadcastReload = () => {
     for (const client of clients) {
@@ -88,6 +90,12 @@ export const dev = async (
     if (url === "/styles/style.css") {
       res.writeHead(200, { "Content-Type": "text/css" });
       res.end(stylesScript);
+      return;
+    }
+
+    if (url === "/styles/style.css.map") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(styleMapScript);
       return;
     }
 
