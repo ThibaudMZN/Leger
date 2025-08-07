@@ -19,9 +19,14 @@ graph
 
 ## Todo
 
-- [x] add proper scss
-- [x] front-matter support
+- [ ] Favicon support
+  - [ ] Need to support local assets copied into build folder
 - [ ] more components
+  - [ ] Header
+  - [ ] Title
+  - [ ] Image
+  - [ ] Footer
+  - [ ] Button
 - [ ] markdown support
 - [ ] custom svelte support
 - [ ] mixin support
