@@ -5,6 +5,7 @@ import { parse } from "../parser/parser";
 import { render, renderFrontmatter } from "../renderer/renderer";
 import { TEMPLATE } from "./htmlUtils";
 import { fileURLToPath } from "node:url";
+import { mimeTypes } from "../mimeTypes";
 
 export type DevOptions = {
   paths: {
@@ -114,17 +115,22 @@ export const dev = async (
       return;
     }
 
+    if (url.startsWith("/assets")) {
+      const filePath = path.join(options.paths.input, url);
+      const content = await fs.readFile(filePath);
+
+      const ext = path.extname(filePath);
+      const contentType = mimeTypes[ext] || "application/octet-stream";
+
+      res.writeHead(200, { "Content-Type": contentType });
+      res.end(content);
+      return;
+    }
+
     const filePath = path.join(
       options.paths.input,
       url === "/" ? "/index.html" : url,
     );
-    const ext = path.extname(filePath);
-    const contentType =
-      {
-        ".html": "text/html",
-        ".js": "application/javascript",
-        ".css": "text/css",
-      }[ext] || "application/octet-stream";
 
     try {
       const content = await fs.readFile(
@@ -137,7 +143,7 @@ export const dev = async (
 
       const htmlContent = TEMPLATE(html.content, head);
       const withClient = injectClientScript(htmlContent);
-      res.writeHead(200, { "Content-Type": contentType });
+      res.writeHead(200, { "Content-Type": "text/html" });
       res.end(withClient);
     } catch (e) {
       res.writeHead(404);

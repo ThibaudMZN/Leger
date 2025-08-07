@@ -30,6 +30,7 @@ describe("Leger dev command", () => {
         if (path.endsWith(".leg")) return "text() Dev server";
         if (path.endsWith(".css")) return "* { margin: 0; }";
         if (path.endsWith(".css.map")) return '{ "some": "value" }';
+        if (path.endsWith(".png")) return "Not a real .png";
         return "console.log('webcomponents');";
       });
     }
@@ -68,6 +69,12 @@ describe("Leger dev command", () => {
     const response = await fetch("http://localhost:7363/styles/style.css.map");
 
     assert.equal(await response.text(), '{ "some": "value" }');
+  });
+
+  it("can serve an asset", async () => {
+    const response = await fetch("http://localhost:7363/assets/image.png");
+
+    assert.equal(await response.text(), "Not a real .png");
   });
 
   it("injects a client script inside HTML content", async () => {
