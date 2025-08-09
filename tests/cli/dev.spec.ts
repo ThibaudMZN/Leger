@@ -1,12 +1,18 @@
 import { describe, it, beforeEach, afterEach, before, after } from "node:test";
 import assert from "node:assert";
-import { dev, DevResult } from "../../src/cli/dev";
+import { dev, DevOptions, DevResult } from "../../src/cli/dev";
 import path from "path";
 import fs from "node:fs/promises";
+import { InMemoryFileSystem } from "../builders/fileSystem.inMemory";
+
+const defaultTestOptions: DevOptions = {
+  paths: { input: "/pages" },
+};
 
 describe("Leger dev command", () => {
   let server: DevResult;
   const initialConsole = console;
+  let fileSystem: InMemoryFileSystem;
 
   before(() => {
     console.log = () => {};
@@ -14,7 +20,9 @@ describe("Leger dev command", () => {
 
   beforeEach(async (context) => {
     if ("mock" in context) {
+      fileSystem = new InMemoryFileSystem();
       context.mock.method(path, "resolve", (path: string) => path);
+      context.mock.method(path, "dirname", () => "/output");
       context.mock.method(fs, "watch", () => {
         return {
           [Symbol.asyncIterator]() {
@@ -26,15 +34,26 @@ describe("Leger dev command", () => {
           },
         };
       });
-      context.mock.method(fs, "readFile", (path: string) => {
-        if (path.endsWith(".leg")) return "text() Dev server";
-        if (path.endsWith(".css")) return "* { margin: 0; }";
-        if (path.endsWith(".css.map")) return '{ "some": "value" }';
-        if (path.endsWith(".png")) return "Not a real .png";
-        return "console.log('webcomponents');";
-      });
+
+      context.mock.method(fs, "readFile", fileSystem.readFile.bind(fileSystem));
+      fileSystem.writeFile(
+        `${defaultTestOptions.paths.input}/index.leg`,
+        "text() Dev server",
+      );
+      fileSystem.writeFile(
+        "/components/components.iife.js",
+        "console.log('webcomponents');",
+      );
+      fileSystem.writeFile("/components/style.css", "* { margin: 0; }");
+      fileSystem.writeFile("/components/style.css.map", '{ "some": "value" }');
+
+      fileSystem.mkdir(`${defaultTestOptions.paths.input}/assets`);
+      fileSystem.writeFile(
+        `${defaultTestOptions.paths.input}/assets/image.png`,
+        "Not a real .png",
+      );
     }
-    server = await dev();
+    server = await dev(defaultTestOptions);
   });
 
   afterEach(async () => {
