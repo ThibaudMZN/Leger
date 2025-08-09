@@ -27,6 +27,9 @@ graph
   - [x] Image
   - [ ] Footer
   - [ ] Button
+- [ ] better frontmatter
+  - [ ] map with each supported option
+  - [ ] throws error if unknown frontmatter key
 - [ ] markdown support
 - [ ] custom svelte support
 - [ ] mixin support
@@ -35,6 +38,9 @@ graph
 - [ ] add cli options (in/out)
   - [ ] from cli
   - [ ] from leger.config.js
+- [ ] Write documentation
+  - [ ] Automate component documentation
+  - [ ] Automate frontmatter documentation
 
 ## Example `.leg` file
 

@@ -64,4 +64,4 @@ export const COMPONENTS: Record<string, ComponentProps> = {
 export type ComponentType = keyof typeof COMPONENTS;
 `;
 
-writeFileSync("./src/constants.ts", output);
+writeFileSync("./src/componentsList.ts", output);

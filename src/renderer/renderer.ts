@@ -1,4 +1,4 @@
-import { COMPONENTS, ComponentType } from "../constants";
+import { COMPONENTS, ComponentType } from "../componentsList";
 
 type RenderResult = {
   content: string;

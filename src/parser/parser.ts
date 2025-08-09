@@ -1,4 +1,4 @@
-import { COMPONENTS } from "../constants";
+import { COMPONENTS } from "../componentsList";
 import { UnknownComponentError, UnknownPropertyError } from "../errors";
 
 export function splitContent(input: string): {

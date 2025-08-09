@@ -1,4 +1,4 @@
-import { ComponentType } from "../../src/constants";
+import { ComponentType } from "../../src/componentsList";
 
 export class LegerNodeBuilder {
   private data: LegerNode = {
